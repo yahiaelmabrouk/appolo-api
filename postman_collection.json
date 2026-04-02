@@ -1,0 +1,468 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "GraphQL Task API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Queries",
+			"item": [
+				{
+					"name": "Get All Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response contains tasks array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('tasks');",
+									"    pm.expect(jsonData.data.tasks).to.be.an('array');",
+									"});",
+									"pm.test('Each task has required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.data.tasks.forEach(function(task) {",
+									"        pm.expect(task).to.have.property('id');",
+									"        pm.expect(task).to.have.property('title');",
+									"        pm.expect(task).to.have.property('description');",
+									"        pm.expect(task).to.have.property('completed');",
+									"        pm.expect(task).to.have.property('duration');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  tasks {\n    id\n    title\n    description\n    completed\n    duration\n    user {\n      id\n      username\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Get Task by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response contains the correct task', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('task');",
+									"    pm.expect(jsonData.data.task).to.not.be.null;",
+									"    pm.expect(jsonData.data.task.id).to.eql('1');",
+									"});",
+									"pm.test('Task has all required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    var task = jsonData.data.task;",
+									"    pm.expect(task).to.have.property('id');",
+									"    pm.expect(task).to.have.property('title');",
+									"    pm.expect(task).to.have.property('description');",
+									"    pm.expect(task).to.have.property('completed');",
+									"    pm.expect(task).to.have.property('duration');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  task(id: \"1\") {\n    id\n    title\n    description\n    completed\n    duration\n    user {\n      id\n      username\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response contains users array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('users');",
+									"    pm.expect(jsonData.data.users).to.be.an('array');",
+									"});",
+									"pm.test('Each user has required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.data.users.forEach(function(user) {",
+									"        pm.expect(user).to.have.property('id');",
+									"        pm.expect(user).to.have.property('username');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  users {\n    id\n    username\n    tasks {\n      id\n      title\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response contains the correct user', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('user');",
+									"    pm.expect(jsonData.data.user).to.not.be.null;",
+									"    pm.expect(jsonData.data.user.id).to.eql('1');",
+									"});",
+									"pm.test('User has required fields and tasks', function () {",
+									"    var jsonData = pm.response.json();",
+									"    var user = jsonData.data.user;",
+									"    pm.expect(user).to.have.property('id');",
+									"    pm.expect(user).to.have.property('username');",
+									"    pm.expect(user).to.have.property('tasks');",
+									"    pm.expect(user.tasks).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  user(id: \"1\") {\n    id\n    username\n    tasks {\n      id\n      title\n      completed\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Mutations",
+			"item": [
+				{
+					"name": "Add Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Task was created successfully', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('addTask');",
+									"    pm.expect(jsonData.data.addTask).to.not.be.null;",
+									"});",
+									"pm.test('Created task has correct data', function () {",
+									"    var jsonData = pm.response.json();",
+									"    var task = jsonData.data.addTask;",
+									"    pm.expect(task.title).to.eql('New Test Task');",
+									"    pm.expect(task.description).to.eql('A task created via Postman test');",
+									"    pm.expect(task.completed).to.eql(false);",
+									"    pm.expect(task.duration).to.eql(45);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation {\n  addTask(title: \"New Test Task\", description: \"A task created via Postman test\", completed: false, duration: 45, userId: \"1\") {\n    id\n    title\n    description\n    completed\n    duration\n    user {\n      id\n      username\n    }\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Add User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('User was created successfully', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('addUser');",
+									"    pm.expect(jsonData.data.addUser).to.not.be.null;",
+									"});",
+									"pm.test('Created user has correct data', function () {",
+									"    var jsonData = pm.response.json();",
+									"    var user = jsonData.data.addUser;",
+									"    pm.expect(user.username).to.eql('test_user');",
+									"    pm.expect(user).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation {\n  addUser(username: \"test_user\") {\n    id\n    username\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Complete Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Task was completed successfully', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('completeTask');",
+									"    pm.expect(jsonData.data.completeTask).to.not.be.null;",
+									"    pm.expect(jsonData.data.completeTask.completed).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation {\n  completeTask(id: \"1\") {\n    id\n    title\n    completed\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Change Task Description",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Description was changed', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('changeDescription');",
+									"    pm.expect(jsonData.data.changeDescription).to.not.be.null;",
+									"    pm.expect(jsonData.data.changeDescription.description).to.eql('Updated description via Postman');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation {\n  changeDescription(id: \"1\", description: \"Updated description via Postman\") {\n    id\n    title\n    description\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Delete Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Task was deleted successfully', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('deleteTask');",
+									"    pm.expect(jsonData.data.deleteTask).to.not.be.null;",
+									"    pm.expect(jsonData.data.deleteTask.id).to.eql('3');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation {\n  deleteTask(id: \"3\") {\n    id\n    title\n    description\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/graphql",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["graphql"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

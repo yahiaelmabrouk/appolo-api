@@ -1,100 +1,74 @@
 // taskResolver.js
 
-let tasks = [
-    {
-        id: '1',
-        title: ' Front-end development for e-commerce websites',
-        description: ' Create a responsive user interface using React and Redux for an e-commerce website.',
-        completed: false,
-        duration: 120,
-        userId: '1',
-    },
-    {
-        id: '2',
-        title: 'Back-end development for user authentication',
-        description: " Implement an authentication and authorization system for a web application using Node.js, Express, and Passport.js",
-        completed: false,
-        duration: 90,
-        userId: '2',
-    },
-    {
-        id: '3',
-        title: 'Testing and Quality Assurance for Web Applications',
-        description: ' Develop and execute complete test plans and test cases.',
-        completed: false,
-        duration: 60,
-        userId: '1',
-    },
-];
-
-let users = [
-    {
-        id: '1',
-        username: 'john_doe',
-    },
-    {
-        id: '2',
-        username: 'jane_doe',
-    },
-];
+const { dbAll, dbGet, dbRun } = require('./database');
 
 const taskResolver = {
     Query: {
-        task: (_, { id }) => tasks.find(task => task.id === id),
-        tasks: () => tasks,
-        user: (_, { id }) => users.find(user => user.id === id),
-        users: () => users,
+        task: async (_, { id }) => {
+            const task = await dbGet('SELECT * FROM tasks WHERE id = ?', [id]);
+            if (task) task.id = String(task.id);
+            return task || null;
+        },
+        tasks: async () => {
+            const tasks = await dbAll('SELECT * FROM tasks');
+            return tasks.map(t => ({ ...t, id: String(t.id), completed: !!t.completed }));
+        },
+        user: async (_, { id }) => {
+            const user = await dbGet('SELECT * FROM users WHERE id = ?', [id]);
+            if (user) user.id = String(user.id);
+            return user || null;
+        },
+        users: async () => {
+            const users = await dbAll('SELECT * FROM users');
+            return users.map(u => ({ ...u, id: String(u.id) }));
+        },
     },
     Task: {
-        user: (task) => users.find(user => user.id === task.userId),
+        user: async (task) => {
+            const user = await dbGet('SELECT * FROM users WHERE id = ?', [task.userId]);
+            if (user) user.id = String(user.id);
+            return user || null;
+        },
+        completed: (task) => !!task.completed,
     },
     User: {
-        tasks: (user) => tasks.filter(task => task.userId === user.id),
+        tasks: async (user) => {
+            const tasks = await dbAll('SELECT * FROM tasks WHERE userId = ?', [user.id]);
+            return tasks.map(t => ({ ...t, id: String(t.id), completed: !!t.completed }));
+        },
     },
     Mutation: {
-        addTask: (_, { title, description, completed, duration, userId }) => {
-            const task = {
-                id: String(tasks.length + 1),
-                title,
-                description,
-                completed,
-                duration,
-                userId,
-            };
-            tasks.push(task);
-            return task;
+        addTask: async (_, { title, description, completed, duration, userId }) => {
+            const result = await dbRun(
+                'INSERT INTO tasks (title, description, completed, duration, userId) VALUES (?, ?, ?, ?, ?)',
+                [title, description, completed ? 1 : 0, duration, userId || null]
+            );
+            return { id: String(result.lastID), title, description, completed, duration, userId };
         },
-        completeTask: (_, { id }) => {
-            const taskIndex = tasks.findIndex(task => task.id === id);
-            if (taskIndex !== -1) {
-                tasks[taskIndex].completed = true;
-                return tasks[taskIndex];
+        completeTask: async (_, { id }) => {
+            await dbRun('UPDATE tasks SET completed = 1 WHERE id = ?', [id]);
+            const task = await dbGet('SELECT * FROM tasks WHERE id = ?', [id]);
+            if (task) { task.id = String(task.id); task.completed = !!task.completed; }
+            return task || null;
+        },
+        changeDescription: async (_, { id, description }) => {
+            await dbRun('UPDATE tasks SET description = ? WHERE id = ?', [description, id]);
+            const task = await dbGet('SELECT * FROM tasks WHERE id = ?', [id]);
+            if (task) { task.id = String(task.id); task.completed = !!task.completed; }
+            return task || null;
+        },
+        deleteTask: async (_, { id }) => {
+            const task = await dbGet('SELECT * FROM tasks WHERE id = ?', [id]);
+            if (task) {
+                task.id = String(task.id);
+                task.completed = !!task.completed;
+                await dbRun('DELETE FROM tasks WHERE id = ?', [id]);
             }
-            return null;
+            return task || null;
         },
-        changeDescription: (_, { id, description }) => {
-            const taskIndex = tasks.findIndex(task => task.id === id);
-            if (taskIndex !== -1) {
-                tasks[taskIndex].description = description;
-                return tasks[taskIndex];
-            }
-            return null;
-        },
-        deleteTask: (_, { id }) => {
-            const taskIndex = tasks.findIndex(task => task.id === id);
-            if (taskIndex !== -1) {
-                const [deletedTask] = tasks.splice(taskIndex, 1);
-                return deletedTask;
-            }
-            return null;
-        },
-        addUser: (_, { username }) => {
-            const user = {
-                id: String(users.length + 1),
-                username,
-            };
-            users.push(user);
-            return user;
+        addUser: async (_, { username }) => {
+            const result = await dbRun('INSERT INTO users (username) VALUES (?)', [username]);
+            return { id: String(result.lastID), username };
         },
     },
 };

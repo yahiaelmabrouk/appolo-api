@@ -15,7 +15,6 @@ npm-debug.log*
 Thumbs.db
 Desktop.ini
 .DS_Store
-
 # IDE / Editor
 .vscode/
 .idea/
@@ -28,3 +27,4 @@ build/
 
 # Coverage
 coverage/
+tasks.db

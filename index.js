@@ -5,11 +5,13 @@ const { addResolversToSchema } = require('@graphql-tools/schema');
 
 const taskSchemaPromise = require('./taskSchema');
 const taskResolver = require('./taskResolver');
+const { initDatabase } = require('./database');
 
 const app = express();
 
 async function setupServer() {
     try {
+        await initDatabase();
         const taskSchema = await taskSchemaPromise;
 
         const schemaWithResolvers = addResolversToSchema({
