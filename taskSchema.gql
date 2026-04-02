@@ -1,0 +1,29 @@
+type Task {
+    id: ID!
+    title: String!
+    description: String!
+    completed: Boolean!
+    duration: Int!
+    user: User
+}
+
+type User {
+    id: ID!
+    username: String!
+    tasks: [Task]
+}
+
+type Query {
+    task(id: ID!): Task
+    tasks: [Task]
+    user(id: ID!): User
+    users: [User]
+}
+
+type Mutation {
+    addTask(title: String!, description: String!, completed: Boolean!, duration: Int!, userId: ID): Task
+    completeTask(id: ID!): Task
+    changeDescription(id: ID!, description: String!): Task
+    deleteTask(id: ID!): Task
+    addUser(username: String!): User
+}
